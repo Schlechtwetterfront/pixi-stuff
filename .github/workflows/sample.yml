@@ -16,7 +16,7 @@ jobs:
       - name: Build
         run: |
           yarn install --immutable
-          yarn build
+          yarn build --base=pixijs-stuff
 
       - name: Deploy to gh-pages
         uses: JamesIves/github-pages-deploy-action@v4
