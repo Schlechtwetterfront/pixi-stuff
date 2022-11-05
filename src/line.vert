@@ -1,4 +1,3 @@
-export const VERTEX_SOURCE = `
 precision highp float;
 
 attribute vec2 aVertexPosition;
@@ -27,14 +26,3 @@ void main() {
 
     gl_Position = vec4((projectionMatrix * vec3(pos, 1)).xy, 0, 1);
 }
-`;
-
-export const FRAGMENT_SOURCE = `
-precision highp float;
-
-varying vec4 vColor;
-
-void main() {
-    gl_FragColor = vColor;
-}
-`;

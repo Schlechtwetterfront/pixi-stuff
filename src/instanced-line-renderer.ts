@@ -13,7 +13,8 @@ import {
 } from "pixi.js";
 import { buildLineSegmentGeo, INSTANCE_SIZE } from "./geo";
 import { LineGraphics } from "./line-graphics";
-import { FRAGMENT_SOURCE, VERTEX_SOURCE } from "./shaders";
+import FRAGMENT_SOURCE from "./line.frag?raw";
+import VERTEX_SOURCE from "./line.vert?raw";
 
 const TEMP_POINT = new Point();
 
