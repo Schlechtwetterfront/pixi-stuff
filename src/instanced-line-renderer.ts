@@ -62,7 +62,7 @@ export class InstancedLineRenderer extends ObjectRenderer {
     this._objects[this._objectCount] = object;
     this._objectCount++;
     // One line graphics could have multiple line segments (e.g. a curve)
-    this._lineSegmentCount += object.linePoints.length - 1;
+    this._lineSegmentCount += object.lineSegments.length;
   }
 
   // Flush is called when rendering is done/a different render plugin becomes active. Render all
@@ -87,12 +87,17 @@ export class InstancedLineRenderer extends ObjectRenderer {
 
       const wt = object.worldTransform;
 
-      const linePoints = object.linePoints;
+      const lineSegments = object.lineSegments;
 
-      for (let j = 0; j < linePoints.length - 1; j++) {
-        // Start and end of line segment, in world space
-        const { x: x0, y: y0 } = wt.apply(linePoints[j], TEMP_POINT);
-        const { x: x1, y: y1 } = wt.apply(linePoints[j + 1], TEMP_POINT);
+      for (let j = 0; j < lineSegments.length; j++) {
+        const { before, start, end, after } = lineSegments[j];
+
+        // Points of line segment, in world space. This is the only local/world space projection
+        // done. Further calculations work in world space so lines always have same width
+        const { x: x0, y: y0 } = wt.apply(before, TEMP_POINT);
+        const { x: x1, y: y1 } = wt.apply(start, TEMP_POINT);
+        const { x: x2, y: y2 } = wt.apply(end, TEMP_POINT);
+        const { x: x3, y: y3 } = wt.apply(after, TEMP_POINT);
 
         // Index of this instance/segment in the interleaved buffer
         const viewIndex =
@@ -100,27 +105,35 @@ export class InstancedLineRenderer extends ObjectRenderer {
 
         // Fill interleaved buffer with geometry attribute data...
 
-        // aStart
+        // aBeforeStart
         view[viewIndex] = x0;
         view[viewIndex + 1] = y0;
 
-        // aEnd
+        // aStart
         view[viewIndex + 2] = x1;
         view[viewIndex + 3] = y1;
 
+        // aEnd
+        view[viewIndex + 4] = x2;
+        view[viewIndex + 5] = y2;
+
+        // aAfterEnd
+        view[viewIndex + 6] = x3;
+        view[viewIndex + 7] = y3;
+
         // aThickness
-        view[viewIndex + 4] = object.thickness;
+        view[viewIndex + 8] = object.thickness;
 
         // aAlignment
-        view[viewIndex + 5] = object.alignment;
+        view[viewIndex + 9] = object.alignment;
 
         // aColor
         const [r, g, b] = utils.hex2rgb(object.tint);
 
-        view[viewIndex + 6] = r;
-        view[viewIndex + 7] = g;
-        view[viewIndex + 8] = b;
-        view[viewIndex + 9] = object.alpha;
+        view[viewIndex + 10] = r;
+        view[viewIndex + 11] = g;
+        view[viewIndex + 12] = b;
+        view[viewIndex + 13] = object.alpha;
 
         segmentCount++;
       }
